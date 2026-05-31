@@ -2,7 +2,7 @@
 
 > **Deposit. Pick your level. Find the card. Win the prize.**
 
-**Voxel — a Celo-based, multi-token card-guessing game, built as a MiniApp for MiniPay.**
+**Voxel — a Celo card-guessing game powered by an on-chain VOXEL credit system, built as a MiniApp for MiniPay.**
 
 ![Status](https://img.shields.io/badge/status-MVP%20in%20development-yellow)
 ![Hackathon](https://img.shields.io/badge/Proof%20of%20Ship-Celo%20Builder%20Program-35D07F)
@@ -26,77 +26,91 @@
 4. [Why Voxel fits Proof of Ship](#why-voxel-fits-proof-of-ship)
 5. [Project status](#project-status)
 6. [Key features](#key-features)
-7. [Supported tokens](#supported-tokens)
-8. [Game levels](#game-levels)
-9. [User flow](#user-flow)
-10. [Demo flow](#demo-flow)
-11. [Architecture](#architecture)
-12. [Smart contract design](#smart-contract-design)
-13. [Frontend design](#frontend-design)
-14. [Tech stack](#tech-stack)
-15. [Security model](#security-model)
-16. [Randomness disclaimer](#randomness-disclaimer)
-17. [Compliance disclaimer](#compliance-disclaimer)
-18. [Installation](#installation)
-19. [Environment variables](#environment-variables)
-20. [Smart contract deployment](#smart-contract-deployment)
-21. [Frontend development](#frontend-development)
-22. [Testing checklist](#testing-checklist)
-23. [Repository structure](#repository-structure)
-24. [Roadmap](#roadmap)
-25. [Team](#team)
-26. [License](#license)
-27. [Hackathon submission checklist](#hackathon-submission-checklist)
+7. [Deposit asset & VOXEL credits](#deposit-asset--voxel-credits)
+8. [Economy & gas model](#economy--gas-model)
+9. [Game levels](#game-levels)
+10. [User flow](#user-flow)
+11. [Demo flow](#demo-flow)
+12. [Architecture](#architecture)
+13. [Smart contract design](#smart-contract-design)
+14. [Frontend design](#frontend-design)
+15. [Tech stack](#tech-stack)
+16. [Security model](#security-model)
+17. [Randomness disclaimer](#randomness-disclaimer)
+18. [Compliance disclaimer](#compliance-disclaimer)
+19. [Installation](#installation)
+20. [Environment variables](#environment-variables)
+21. [Smart contract deployment](#smart-contract-deployment)
+22. [Frontend development](#frontend-development)
+23. [Testing checklist](#testing-checklist)
+24. [Repository structure](#repository-structure)
+25. [Roadmap](#roadmap)
+26. [Team](#team)
+27. [License](#license)
+28. [Hackathon submission checklist](#hackathon-submission-checklist)
 
 ---
 
 ## One-liner
 
-Voxel is a mobile-first, multi-token **card-guessing game** on Celo: connect a MiniPay wallet, deposit one of four supported tokens, choose a difficulty level, and try to find the winning card to grow your in-game balance.
+Voxel is a mobile-first **card-guessing game** on Celo: **deposit CELO once**, receive in-game **VOXEL credits**, then play many fast on-chain rounds — paying a small credit fee each round and earning more credits when you find the winning card.
 
 ---
 
 ## Problem
 
-Most onchain "games" on mobile wallets are either heavy DeFi dashboards or one-off click-to-earn loops. They are slow to understand, hard to play on a phone, and rarely give a casual user a reason to make a real onchain transaction in under a minute.
+Most onchain "games" on mobile wallets are either heavy DeFi dashboards or one-off click-to-earn loops. They are slow to understand, hard to play on a phone, and rarely give a casual user a reason to make *repeated* real onchain transactions.
 
-MiniPay reaches **14M+ self-custodial users** who already hold stablecoins, but there is a shortage of **simple, fun, mobile-native experiences** that:
+MiniPay reaches **14M+ self-custodial users** who already hold stablecoins and CELO, but there is a shortage of **simple, fun, mobile-native experiences** that:
 
 - onboard a user into a real onchain action in seconds,
 - work natively inside the MiniPay wallet,
-- and are easy to grasp without any DeFi knowledge.
+- and generate **sustained onchain activity** (many transactions per user) rather than a single tap.
 
 ---
 
 ## Solution
 
-Voxel turns a single onchain interaction into a **fast, luck-based card game**:
+Voxel converts **one deposit into many rounds** using an internal credit system:
 
-1. Deposit a supported token into the Voxel game contract.
-2. Pick a difficulty: **Beginner (3 cards)**, **Medium (5 cards)**, or **Hard (7 cards)**.
-3. Play a round: one card is the winner. Higher difficulty = higher play fee, but a bigger prize.
-4. Win → the prize is credited to your in-game balance. Lose → only the play fee is deducted.
-5. Withdraw your remaining balance to your wallet at any time.
+1. **Deposit CELO** → receive **VOXEL credits** (default rate: `1 CELO = 1000 VOXEL`).
+2. **Pick a level**: Beginner (3 cards), Medium (5), or Hard (7).
+3. **Play on-chain** → each round pays a fee **in VOXEL credits**; find the winning card to earn a bigger VOXEL reward.
+4. **Withdraw** remaining value: redeem VOXEL credits back to CELO at the fixed rate (subject to contract liquidity).
 
-It is intentionally **simple and mobile-first** — aligned with the Proof of Ship guidance that *"the simpler, the better."* Voxel is positioned squarely in the program's **Games** category — it is **not** a DeFi yield product, **not** a reward-farming app, and **not** a real-money gambling product. See the [Compliance disclaimer](#compliance-disclaimer).
+Because the play fee is denominated in **internal credits**, a single deposit funds **many rounds** — e.g. **~100 Beginner rounds from 1 CELO** — and each round is a real `playRound()` transaction on Celo. This directly produces the **onchain activity** Proof of Ship asks for, while keeping the experience cheap and casual.
+
+Voxel sits in the program's **Games** category. It is **not** a DeFi yield product, **not** a reward-farming app, and **not** a real-money gambling service. See the [Compliance disclaimer](#compliance-disclaimer).
 
 ---
 
 ## Why Voxel fits Proof of Ship
 
-This project targets the **Proof of Ship — Celo Builder Program (Season 2, April–July 2026)**, whose brief is to *"ship real products"* as **MiniApps for MiniPay**.
+Targeting the **Proof of Ship — Celo Builder Program (Season 2, April–July 2026)**: *ship real products as MiniApps for MiniPay.*
 
 | Program signal (from `Docs_Hackaton.md`) | How Voxel responds |
 |---|---|
-| Wanted category: **Games** | Voxel is a casual luck-based card game — a direct fit, not a DeFi/finance app. |
-| **MiniApp built with the MiniPay hook** | Built as a MiniApp; wallet connection targets MiniPay's injected provider (via wagmi/viem). 🚧 |
-| **Onchain activity** required | Every deposit, play, and withdrawal is a real onchain transaction on Celo. |
+| Wanted category: **Games** | A casual luck-based card game — not a DeFi/finance app. |
+| **MiniApp built with the MiniPay hook** | Built as a MiniApp; detects `window.ethereum.isMiniPay`, auto-connects the injected wallet, and hides the Connect Wallet button inside MiniPay. 🚧 |
+| **Onchain activity** required | **Each round is an onchain `playRound()` tx.** One CELO deposit ≈ 100 Beginner rounds ≈ ~100 transactions. High, sustained activity per user. |
 | **Deploy on Celo Mainnet, verified contract** | `VoxelGame.sol` targets Celo Mainnet with source verification on Celoscan. 🗺️ |
 | **Open source, public GitHub** | This repository is public and MIT-licensed. |
-| **"Simpler is better"** | One focused loop: deposit → pick level → play → win/lose → withdraw. |
-| **Mobile-first** | Dark, rounded, thumb-friendly UI designed for the MiniPay in-wallet browser. |
+| **"Simpler is better"** | Single deposit asset (CELO), single internal currency (VOXEL), one loop. |
+| **Mobile-first** | Dark, rounded, thumb-friendly UI for the MiniPay in-wallet browser. |
 
-> Avoided on purpose: the program explicitly does **not** seek *DeFi apps by solo builders*, *reward-farming apps*, or non-functional *demos / bot engagement*. Voxel is framed and built as a **functional game**, with deposits/fees/prizes as **in-game mechanics on testnet**, not as a financial or farming product.
+> Avoided on purpose: the program explicitly does **not** seek *DeFi apps by solo builders*, *reward-farming apps*, or non-functional *demos / bot engagement*. Voxel is framed and built as a **functional game**, with deposits/fees/rewards as **in-game mechanics on testnet**, not a financial or farming product.
+
+### Effect on the Proof of Ship onchain metrics
+
+Builder activity is tracked on [Talent App](https://talent.app/) (Transactions, DAU, Gas Fees). The VOXEL credit model is designed to lift these **honestly**:
+
+| Metric | Effect of the credit model | Why |
+|---|---|---|
+| **Transactions** | ↑ | Each `playRound()` is **one onchain transaction**. `1 CELO = 1000 VOXEL` and a Beginner round costs `10 VOXEL`, so one funded session is ~100 rounds ≈ ~100 transactions. A low per-round fee removes friction so real players play many rounds. |
+| **Gas Fees** | ↑ (proportional) | Every round still pays **CELO gas** (kept low because `playRound()` only updates internal balances — but never zero). More rounds → more total gas. |
+| **DAU** | — (not by itself) | Daily Active Users counts **distinct wallets**. One person replaying 1,000 rounds is still **1 DAU**. DAU grows only with real onboarding, not replays. |
+
+> **Integrity note — this is not transaction farming.** The credit model does **not invent** transactions; it makes each round cheap enough that *genuine* users play many. Inflating the Transactions count by self-playing or scripting rounds from one wallet is exactly the **"bot engagement / reward farming"** pattern the program rejects (`Docs_Hackaton.md`). The real, defensible signal is **real users × several rounds each** — which lifts Transactions *and* DAU together.
 
 ---
 
@@ -105,79 +119,122 @@ This project targets the **Proof of Ship — Celo Builder Program (Season 2, Apr
 | Area | Component | Status |
 |---|---|---|
 | Repo | Two-package layout (`frontend-voxel/`, `sc-voxel/`) committed | ✅ |
-| Repo | Full technical design (structs, functions, events, levels) specified | ✅ |
+| Repo | Technical design (credit economy, structs, functions, events) specified | ✅ |
 | Frontend | Next.js 16 + React 19 + Tailwind v4 scaffold | ✅ |
-| Frontend | MiniPay-compatible wallet connection (wagmi/viem injected connector) | 🚧 |
-| Frontend | Dashboard, deposit/withdraw, game lobby, game screen, result modal | 🚧 |
+| Frontend | MiniPay integration — detect `window.ethereum.isMiniPay`, auto-connect, hide Connect button | 🚧 |
+| Frontend | Dashboard, CELO deposit, VOXEL balance, game lobby, game screen, result modal | 🚧 |
 | Frontend | Framer Motion shuffle/flip animations | 🗺️ |
 | Frontend | Leaderboard from contract events | 🗺️ |
 | Contracts | Foundry project scaffold (`forge` + `forge-std`) | ✅ |
-| Contracts | `VoxelGame.sol` (deposits, withdraw, play, stats, admin) | 🚧 |
-| Contracts | OpenZeppelin `SafeERC20` / `Ownable` / `ReentrancyGuard` integration | 🚧 |
+| Contracts | `VoxelGame.sol` (CELO deposit → credits, play, withdraw, stats, admin) | 🚧 |
+| Contracts | OpenZeppelin `Ownable` / `ReentrancyGuard` integration | 🚧 |
 | Contracts | Foundry unit tests | 🗺️ |
 | Deploy | Celo Sepolia (dev/QA) deployment | 🗺️ |
 | Deploy | **Celo Mainnet** deployment + Celoscan verification (eligibility) | 🗺️ |
 | Security | Secure randomness (VRF / commit-reveal) | 🗺️ |
 | Security | External audit | 🗺️ (out of MVP scope) |
+| Roadmap | Multi-token deposits (USDm/USDC/USDT → VOXEL) | 🗺️ |
 
 ---
 
 ## Key features
 
-- 🚧 **Multi-token deposits** — USDm, USDC, USDT (ERC-20 `approve` + deposit) and native CELO (`payable` deposit).
-- 🚧 **In-game balance system** — play is funded from your deposited balance, never directly from your wallet.
-- 🚧 **Three difficulty levels** — Beginner (3 cards), Medium (5), Hard (7), with configurable fee and prize per level.
-- 🚧 **Card-guessing round** — one winning card per round; pick it to win the prize.
-- 🚧 **Withdraw anytime** — pull your unused balance back to your wallet.
-- 🚧 **Player stats** — total played, wins, losses, win rate, total prize won.
-- 🚧 **Owner/admin configuration** — supported tokens and level economics are configurable onchain.
-- 🚧 **Events for indexing** — `Deposited`, `Withdrawn`, `RoundPlayed`, `LevelUpdated`, `TokenUpdated` for a frontend/leaderboard to consume.
-- 🗺️ **Leaderboard** — rank, wallet, plays, wins, win rate, total prize won (read from contract events).
-- 🚧 **MiniPay-native, mobile-first UI** — dark theme, neon-green Celo accent, large touch targets.
+- 🚧 **CELO deposit → VOXEL credits** — deposit native CELO once and receive in-game credits at a configurable rate (default `1 CELO = 1000 VOXEL`).
+- 🚧 **Internal credit ledger** — VOXEL is an **internal accounting balance**, not a transferable ERC-20 token. `playRound()` only mutates internal numbers, keeping gas low.
+- 🚧 **Many rounds per deposit** — one deposit funds ~100 Beginner rounds → high, sustained onchain transaction count.
+- 🚧 **Three difficulty levels** — Beginner (3 cards), Medium (5), Hard (7), with configurable credit fee and credit reward per level.
+- 🚧 **Card-guessing round** — one winning card per round; find it to earn the level's VOXEL reward.
+- 🚧 **Redeem / withdraw** — convert remaining VOXEL credits back to CELO at the fixed rate, subject to contract liquidity.
+- 🚧 **Player stats** — total played, wins, losses, win rate, total credits won.
+- 🚧 **Owner/admin configuration** — conversion rate and per-level economics are configurable onchain.
+- 🚧 **Events for indexing** — `Deposited`, `Withdrawn`, `RoundPlayed`, `LevelUpdated`, `ConversionRateUpdated` for a frontend/leaderboard to consume.
+- 🗺️ **Leaderboard** — rank, wallet, plays, wins, win rate, total credits won (from contract events).
+- 🗺️ **Multi-token deposits** — accept USDm/USDC/USDT and convert to VOXEL credits (future).
 
 ---
 
-## Supported tokens
+## Deposit asset & VOXEL credits
 
-| Token | Name | Type | Deposit method |
+| Concept | Detail |
+|---|---|
+| **Deposit asset** | **CELO** (native), via a `payable` deposit. |
+| **Game currency** | **VOXEL credits** — an internal balance tracked per player in the contract. |
+| **Conversion rate** | Default **`1 CELO = 1000 VOXEL`**, owner-configurable (`setConversionRate`). |
+| **Redeemable?** | Yes — VOXEL → CELO at the same fixed rate on withdrawal, **subject to contract liquidity** ("if allowed"). |
+
+> **What VOXEL is — and is not.** VOXEL credits are **internal game accounting**, not an ERC-20 token. They are **not transferable** between users, **not listed**, and have **no existence outside the Voxel contract**. They exist only to denominate play fees and rewards cheaply, and are redeemable for the deposited CELO at the configured rate while the prize pool remains solvent. This keeps Voxel a **game**, not a token project.
+
+---
+
+## Economy & gas model
+
+### Credit economy (example, configurable)
+
+| Action | Cost / Reward |
+|---|---|
+| Deposit 1 CELO | **+1000 VOXEL** |
+| Beginner — play fee | −10 VOXEL |
+| Beginner — win reward | +25 VOXEL |
+| Medium — play fee | −25 VOXEL |
+| Medium — win reward | +100 VOXEL |
+| Hard — play fee | −50 VOXEL |
+| Hard — win reward | +300 VOXEL |
+
+**One deposit, many rounds:** `1 CELO = 1000 VOXEL`, and a Beginner round costs `10 VOXEL`, so a single deposit funds **~100 Beginner rounds** — great for transaction count and onchain activity.
+
+> On each round the fee is deducted; on a win the reward is added. Net win (Beginner) = `+25 − 10 = +15 VOXEL`; net loss = `−10 VOXEL`. Level economics are configured so the prize pool stays sustainable on average (see [Security model](#security-model)).
+
+### Two separate costs — game fee ≠ gas
+
+There are **two distinct costs** in Voxel, and they are not the same thing:
+
+| Cost | Paid in | Goes to | Notes |
 |---|---|---|---|
-| **USDm** | Mento Dollar | ERC-20 | `approve` → `depositERC20` |
-| **USDC** | USD Coin | ERC-20 | `approve` → `depositERC20` |
-| **USDT** | Tether USD | ERC-20 | `approve` → `depositERC20` |
-| **CELO** | Celo native token | Native | `depositCELO` (payable) |
+| **Game fee** | VOXEL credits (internal) | The Voxel prize pool | Just an internal ledger update. |
+| **Network gas fee** | CELO (or a Celo-supported fee token) | Celo validators / the network | Required for every transaction. |
 
-Token addresses are **never hardcoded** — they are read from environment variables and registered onchain via the admin `setToken` function.
-
-> **Testnet note:** On **Celo Sepolia** you can fund **CELO** from the [Celo faucet](https://faucet.celo.org/celo-sepolia) and **USDC** from the [Circle faucet](https://faucet.circle.com/). USDm and USDT may require mock ERC-20 tokens on testnet; production token addresses are configured for **Celo Mainnet**.
+**Important:** the VOXEL game fee **does not replace gas**. Every `playRound()` is still a blockchain transaction and still costs network gas, paid in CELO. Because `playRound()` only updates internal balances (no token transfers in the hot path), its **gas cost is kept low** — but it is never zero.
 
 ---
 
 ## Game levels
 
-| Level | Cards | Win chance | Example play fee | Example prize |
+| Level | Cards | Win chance | Play fee (VOXEL) | Win reward (VOXEL) |
 |---|---:|---:|---:|---:|
-| **Beginner** | 3 | 33.33% | 0.1 | 0.2 |
-| **Medium** | 5 | 20.00% | 0.2 | 0.7 |
-| **Hard** | 7 | 14.28% | 0.5 | 2.5 |
+| **Beginner** | 3 | 33.33% | 10 | 25 |
+| **Medium** | 5 | 20.00% | 25 | 100 |
+| **Hard** | 7 | 14.28% | 50 | 300 |
 
-> Fees and prizes above are **example defaults** and are **configurable onchain** by the contract owner per level (`setLevel`). Values are expressed in the selected token's units; token decimals are handled per token (see [Security model](#security-model)).
+> Fees and rewards are denominated in **VOXEL credits** and are **configurable onchain** by the owner per level (`setLevel`).
 
 ---
 
 ## User flow
 
 ```
-Open app  →  Connect wallet  →  Choose token  →  Deposit token
-   →  Select level  →  Play round  →  Pick a card  →  Win or lose
-   →  Balance updates  →  Play again  /  Withdraw
+Connect wallet
+   ↓
+Deposit CELO
+   ↓
+Receive VOXEL game credits        (1 CELO = 1000 VOXEL)
+   ↓
+Choose level                      (Beginner / Medium / Hard)
+   ↓
+Play on-chain                     (playRound tx)
+   ↓
+Pay fee in VOXEL credits          (+ network gas in CELO)
+   ↓
+Win → more VOXEL credits  /  Lose → only fee deducted
+   ↓
+Play again  /  Withdraw remaining value (VOXEL → CELO, if liquidity allows)
 ```
 
-1. **Connect wallet** — the app reads your wallet balances (USDm, USDC, USDT, CELO) and your in-contract deposit balances.
-2. **Deposit** — choose a token and amount. ERC-20 tokens require an `approve` then `deposit`; CELO uses a native payable deposit.
-3. **Choose token & level** — the lobby shows card count, play fee, possible prize, and your deposit balance.
-4. **Play** — cards are shown face-down and shuffled; you pick one; the round is submitted onchain; the winning card is revealed.
-5. **Result** — win credits the prize to your balance; loss deducts only the play fee. The result is recorded in your stats.
-6. **Withdraw** — withdraw any unused deposit balance back to your wallet at any time.
+1. **Connect wallet** — the app reads your CELO wallet balance and your in-contract VOXEL credit balance.
+2. **Deposit CELO** — send native CELO; the contract credits your VOXEL balance at the current rate.
+3. **Choose a level** — the lobby shows card count, play fee (VOXEL), possible reward (VOXEL), and your credit balance.
+4. **Play** — cards are shown face-down and shuffled; you pick one; the round is submitted onchain (gas in CELO); the winning card is revealed.
+5. **Result** — a win credits the reward; a loss deducts only the fee. The result is recorded in your stats.
+6. **Withdraw** — redeem remaining VOXEL credits back to CELO at the fixed rate, subject to contract liquidity.
 
 ---
 
@@ -186,14 +243,14 @@ Open app  →  Connect wallet  →  Choose token  →  Deposit token
 A ~60-second judge/demo walkthrough:
 
 1. Open Voxel inside MiniPay (or a browser wallet on Celo Sepolia for local testing).
-2. Connect wallet → balances load.
-3. Deposit a small amount of a test token (e.g. 1 USDC) → confirm the onchain deposit transaction.
-4. Open the lobby → select **Medium (5 cards)** → review fee `0.2` and prize `0.7`.
-5. Start the round → watch the shuffle → pick a card → submit the play transaction.
-6. See the **Win/Lose** modal and the updated in-game balance.
-7. Withdraw the remaining balance → confirm the onchain withdrawal.
+2. Connect wallet → CELO balance and VOXEL credits load.
+3. Deposit a small amount of CELO (e.g. 0.1 CELO → 100 VOXEL) → confirm the onchain deposit transaction.
+4. Open the lobby → select **Medium (5 cards)** → review fee `25 VOXEL` and reward `100 VOXEL`.
+5. Start the round → watch the shuffle → pick a card → submit the play transaction (gas in CELO).
+6. See the **Win/Lose** modal and the updated VOXEL balance.
+7. Play several quick rounds to show sustained onchain activity, then withdraw remaining credits back to CELO.
 
-> **Demo narration (from the project doc):** *"Voxel is a Celo-based multi-token card game. Deposit USDm, USDC, USDT, or CELO, choose Beginner / Medium / Hard, and find the winning card. Higher difficulty means a higher fee but a bigger prize. Win and the prize is added to your balance; lose and only the fee is deducted. Withdraw anytime."*
+> **Demo narration:** *"Voxel is a Celo card game. Deposit CELO once and get VOXEL credits — 1 CELO is 1000 VOXEL. Pick Beginner, Medium, or Hard, then find the winning card. Each round costs a few VOXEL, so one deposit plays ~100 rounds. Win and your credits grow; withdraw back to CELO anytime liquidity allows."*
 
 ---
 
@@ -210,29 +267,27 @@ A ~60-second judge/demo walkthrough:
 │  frontend-voxel/   Next.js 16 (App Router) · React 19 · Tailwind v4    │
 │                                                                        │
 │   Pages: Landing · Dashboard · Play · Leaderboard                      │
-│   wagmi + viem  ──── read balances / send tx ────┐                     │
-│   Framer Motion (card shuffle/flip)              │                     │
-└──────────────────────────────────────────────────┼─────────────────────┘
-                                                    │ JSON-RPC
-                                                    ▼
+│   wagmi + viem  ──── read CELO + VOXEL / send tx ────┐                 │
+│   Framer Motion (card shuffle/flip)                  │                 │
+└──────────────────────────────────────────────────────┼─────────────────┘
+                                                        │ JSON-RPC
+                                                        ▼
 ┌──────────────────────────────────────────────────────────────────────┐
 │  sc-voxel/   Foundry · Solidity · OpenZeppelin                          │
 │                                                                        │
 │   VoxelGame.sol                                                        │
-│     • depositERC20 / depositCELO / withdraw                            │
-│     • playRound (fee → outcome → prize)                                │
-│     • per-token deposit balances · player stats · rounds              │
-│     • admin: setToken / setLevel / fundPrizePool*                      │
-│     • events: Deposited / Withdrawn / RoundPlayed / ...                │
+│     • depositCELO  (CELO → VOXEL credits)                              │
+│     • playRound    (fee in VOXEL → outcome → reward in VOXEL)          │
+│     • withdraw     (VOXEL → CELO, liquidity-checked)                   │
+│     • per-user credit balance · player stats · rounds                 │
+│     • admin: setLevel / setConversionRate / fundPrizePoolCELO          │
+│     • events: Deposited / Withdrawn / RoundPlayed / ...               │
 └───────────────────────────────────────────────────┬────────────────────┘
                                                      ▼
                                   Celo  (Sepolia for dev · Mainnet for eligibility)
 ```
 
-The repository is a **two-package layout**:
-
-- **`frontend-voxel/`** — the MiniApp (Next.js).
-- **`sc-voxel/`** — the smart contracts (Foundry).
+The repository is a **two-package layout**: **`frontend-voxel/`** (the MiniApp) and **`sc-voxel/`** (the contracts).
 
 ---
 
@@ -242,28 +297,21 @@ The repository is a **two-package layout**:
 
 ### Responsibilities
 
-1. Accept ERC-20 deposits (USDm, USDC, USDT) and native CELO deposits.
-2. Track per-user, per-token deposit balances.
-3. Allow withdrawals per token.
-4. Play a round with a selected token and level: validate, deduct fee, determine outcome, credit prize on win.
+1. Accept native **CELO deposits** and credit VOXEL at the conversion rate.
+2. Track per-user **VOXEL credit balances**.
+3. Play a round at a selected level: validate, deduct the credit fee, determine the outcome, credit the reward on a win.
+4. Allow **withdrawal** by redeeming VOXEL → CELO at the fixed rate, bounded by contract liquidity.
 5. Track player stats and round history.
-6. Let the owner configure level economics and supported tokens.
+6. Let the owner configure the conversion rate and per-level economics.
 7. Emit events for the frontend and leaderboard.
 
 ### Core types
 
 ```solidity
-struct TokenConfig {
-    bool    supported;
-    bool    isNative;
-    address tokenAddress;
-    string  symbol;
-}
-
 struct LevelConfig {
-    uint8   cardCount;
-    uint256 playFee;
-    uint256 prize;
+    uint8   cardCount;   // 3 / 5 / 7
+    uint256 fee;         // play fee in VOXEL credits
+    uint256 reward;      // win reward in VOXEL credits
     bool    enabled;
 }
 
@@ -271,31 +319,34 @@ struct PlayerStats {
     uint256 totalPlayed;
     uint256 totalWins;
     uint256 totalLosses;
-    uint256 totalVolume;
-    uint256 totalPrizeWon;
+    uint256 totalFeesPaid;     // in VOXEL
+    uint256 totalRewardWon;    // in VOXEL
 }
 
 struct Round {
     address player;
-    bytes32 tokenId;
     uint8   level;
     uint8   cardCount;
     uint8   playerPick;
     uint8   winningCard;
-    uint256 fee;
-    uint256 prize;
+    uint256 fee;         // VOXEL
+    uint256 reward;      // VOXEL
     bool    won;
     uint256 timestamp;
 }
 ```
 
-### Token & level identifiers
+### State & constants
 
 ```solidity
-bytes32 public constant TOKEN_USDM = keccak256("USDm");
-bytes32 public constant TOKEN_USDC = keccak256("USDC");
-bytes32 public constant TOKEN_USDT = keccak256("USDT");
-bytes32 public constant TOKEN_CELO = keccak256("CELO");
+mapping(address => uint256)      public creditBalance;   // VOXEL credits per user
+mapping(uint8 => LevelConfig)    public levels;
+mapping(address => PlayerStats)  public playerStats;
+mapping(uint256 => Round)        public rounds;
+
+uint256 public voxelPerCelo = 1000; // 1 CELO -> 1000 VOXEL (owner-configurable)
+uint256 public nextRoundId;
+address public owner;
 
 uint8 public constant LEVEL_BEGINNER = 1;
 uint8 public constant LEVEL_MEDIUM   = 2;
@@ -306,26 +357,41 @@ uint8 public constant LEVEL_HARD     = 3;
 
 | Function | Purpose |
 |---|---|
-| `depositERC20(bytes32 tokenId, uint256 amount)` | Deposit a supported ERC-20 token (after `approve`). |
-| `depositCELO() payable` | Deposit native CELO. |
-| `withdraw(bytes32 tokenId, uint256 amount)` | Withdraw an ERC-20 or native CELO from your deposit balance. |
-| `playRound(bytes32 tokenId, uint8 level, uint8 playerPick) returns (uint256 roundId)` | Validate, deduct fee, determine the winning card, credit prize on win, record stats. |
-| `getDepositBalance(address user, bytes32 tokenId) view returns (uint256)` | Read a user's deposit balance for a token. |
+| `depositCELO() payable` | Deposit native CELO; mint VOXEL credits = `msg.value * voxelPerCelo / 1e18`. |
+| `playRound(uint8 level, uint8 playerPick) returns (uint256 roundId)` | Validate, deduct the credit fee, determine the winning card, add the reward on a win, record stats. |
+| `withdraw(uint256 voxelAmount)` | Burn VOXEL credits and send `voxelAmount * 1e18 / voxelPerCelo` CELO, if contract liquidity allows. |
+| `getCreditBalance(address user) view returns (uint256)` | Read a user's VOXEL credit balance. |
 | `getPlayerStats(address user) view returns (PlayerStats)` | Read a user's stats. |
-| `setToken(...) onlyOwner` | Add / update / disable a supported token. |
-| `setLevel(...) onlyOwner` | Configure card count, fee, prize, and enabled flag per level. |
-| `fundPrizePoolERC20(bytes32 tokenId, uint256 amount)` | Seed the ERC-20 prize liquidity. |
-| `fundPrizePoolCELO() payable` | Seed the native CELO prize liquidity. |
+| `setLevel(uint8 level, uint8 cardCount, uint256 fee, uint256 reward, bool enabled) onlyOwner` | Configure level economics (in VOXEL). |
+| `setConversionRate(uint256 newVoxelPerCelo) onlyOwner` | Update the CELO↔VOXEL rate. |
+| `fundPrizePoolCELO() payable` | Seed CELO liquidity so winnings can be redeemed. |
 
 ### Events
 
-`Deposited`, `Withdrawn`, `RoundPlayed`, `LevelUpdated`, `TokenUpdated` — indexed for efficient frontend and leaderboard queries.
+```solidity
+event Deposited(address indexed user, uint256 celoAmount, uint256 voxelCredited);
+event Withdrawn(address indexed user, uint256 voxelBurned, uint256 celoAmount);
+event RoundPlayed(
+    uint256 indexed roundId,
+    address indexed user,
+    uint8   level,
+    uint8   cardCount,
+    uint8   playerPick,
+    uint8   winningCard,
+    bool    won,
+    uint256 fee,
+    uint256 reward
+);
+event LevelUpdated(uint8 indexed level, uint8 cardCount, uint256 fee, uint256 reward, bool enabled);
+event ConversionRateUpdated(uint256 voxelPerCelo);
+```
 
 ### Invariants enforced
 
-- A user cannot withdraw more than their deposit balance.
-- A user cannot play if their deposit balance is below the level's play fee.
-- A prize is paid **only** if contract liquidity for that token is sufficient (prize-pool check) — the game cannot pay out into insolvency.
+- A user cannot play if their **VOXEL balance < the level fee**.
+- A user cannot withdraw more VOXEL than they hold.
+- A withdrawal (and any net winnings) is paid **only if contract CELO liquidity is sufficient** — the game cannot pay out into insolvency.
+- The fee is always deducted; the reward is added **only** on a win (Checks-Effects-Interactions before the CELO transfer on withdrawal).
 
 ---
 
@@ -333,18 +399,57 @@ uint8 public constant LEVEL_HARD     = 3;
 
 **Package:** `frontend-voxel/` (Next.js 16 App Router, React 19, Tailwind v4).
 
+### MiniPay integration
+
+MiniPay injects an EIP-1193 provider flagged with **`window.ethereum.isMiniPay`**. Voxel treats the MiniPay integration as **"integrated" only when both** of the following are true in code:
+
+1. **Detection** — the app checks `window.ethereum?.isMiniPay` to recognize it is running inside MiniPay.
+2. **Auto-connect + hidden button** — when running inside MiniPay, the app **auto-connects** the injected wallet and **hides the Connect Wallet button** (MiniPay is already a connected, self-custodial wallet — no manual connect step).
+
+```tsx
+// hooks/useMiniPay.ts
+"use client";
+import { useEffect, useState } from "react";
+import { useConnect } from "wagmi";
+import { injected } from "wagmi/connectors";
+
+export function useMiniPay() {
+  const [isMiniPay, setIsMiniPay] = useState(false);
+  const { connect } = useConnect();
+
+  useEffect(() => {
+    // MiniPay injects window.ethereum with isMiniPay === true
+    const inMiniPay =
+      typeof window !== "undefined" && (window as any).ethereum?.isMiniPay;
+    if (inMiniPay) {
+      setIsMiniPay(true);
+      connect({ connector: injected() }); // auto-connect; no Connect button needed
+    }
+  }, [connect]);
+
+  return { isMiniPay };
+}
+```
+
+```tsx
+// components/ConnectWalletButton.tsx
+const { isMiniPay } = useMiniPay();
+if (isMiniPay) return null; // hide Connect Wallet button when opened from MiniPay
+return <button onClick={() => connect({ connector: injected() })}>Connect Wallet</button>;
+```
+
 ### Pages
 
 | Page | Route | Contents |
 |---|---|---|
 | Landing | `/` | Title, tagline, Connect Wallet, Start Playing, View Levels. |
-| Dashboard | `/dashboard` | Wallet address, wallet balances, deposit balances, player stats, deposit/withdraw/play actions. |
-| Play | `/play` | Game lobby (token + level), game screen (cards, shuffle, pick, reveal), result modal. |
-| Leaderboard | `/leaderboard` | Rank, wallet, plays, wins, win rate, total prize won (mock first → events later). |
+| Dashboard | `/dashboard` | Wallet address, CELO balance, **VOXEL credit balance**, player stats, deposit/withdraw/play actions. |
+| Play | `/play` | Game lobby (level select), game screen (cards, shuffle, pick, reveal), result modal. |
+| Leaderboard | `/leaderboard` | Rank, wallet, plays, wins, win rate, total credits won (mock first → events later). |
 
 ### Components
 
-`ConnectWalletButton`, `TokenBalanceCard`, `DepositCard`, `WithdrawCard`, `GameLevelCard`, `GameLobby`, `CardTable`, `PlayingCard`, `ResultModal`, `PlayerStatsCard`, `LeaderboardTable`, `TokenSelector`.
+`ConnectWalletButton`, `CeloBalanceCard`, `VoxelCreditCard`, `DepositCard`, `WithdrawCard`, `GameLevelCard`, `GameLobby`, `CardTable`, `PlayingCard`, `ResultModal`, `PlayerStatsCard`, `LeaderboardTable`.
 
 ### Visual theme
 
@@ -375,7 +480,7 @@ Dark, rounded, mobile-first, **arcade / game-show** vibe (not a finance dashboar
 | Animation | Framer Motion 🗺️ |
 | Web3 client | wagmi + viem (MiniPay-compatible injected connector) 🚧 |
 | Contracts | Solidity + **Foundry** (`forge`) |
-| Libraries | OpenZeppelin (`SafeERC20`, `Ownable`, `ReentrancyGuard`) |
+| Libraries | OpenZeppelin (`Ownable`, `ReentrancyGuard`; `SafeERC20` when multi-token lands) |
 | Network | Celo — **Sepolia** for dev/QA, **Mainnet** for eligibility |
 | Verification | Celoscan |
 
@@ -389,18 +494,18 @@ Voxel is an **unaudited MVP for a builder program**. The design follows standard
 
 **Implemented by design (🚧 as `VoxelGame.sol` is built):**
 
-- **`SafeERC20`** for all ERC-20 transfers (handles non-standard tokens).
-- **`ReentrancyGuard`** on state-changing, fund-moving functions.
-- **Checks-Effects-Interactions** ordering: balances are updated before external transfers.
-- **Access control** via `Ownable` for token/level configuration.
-- **Liquidity check** before paying any prize (no insolvent payouts).
-- **Per-token decimals handled per token** — Voxel does **not** assume all tokens share 18 decimals (USDC/USDT are commonly 6). Decimals are configured per token; fee/prize values are set in the token's units.
+- **`ReentrancyGuard`** on fund-moving functions (`depositCELO`, `withdraw`).
+- **Checks-Effects-Interactions** ordering: credit balances are updated before any CELO transfer, and native CELO is sent via a checked low-level `call`.
+- **Access control** via `Ownable` for rate/level configuration.
+- **Liquidity check** before any CELO payout — no insolvent withdrawals.
+- **Sustainable economics** — per-level fee/reward are configured so the prize pool is not drained on average; the owner seeds liquidity via `fundPrizePoolCELO`.
 
 **Known risks / limitations (explicitly disclosed):**
 
 - ❌ **Not audited.** No third-party security audit has been performed.
-- ⚠️ **Custodial contract.** The contract holds user deposits and the prize pool; mitigated by withdraw-anytime, but custody risk exists.
-- ⚠️ **Admin powers.** The owner can configure tokens and level economics — centralization/admin-key risk. Production should use a multisig/timelock.
+- ⚠️ **Custodial contract.** It holds deposited CELO and the prize pool; mitigated by withdraw-anytime (liquidity permitting), but custody risk exists.
+- ⚠️ **Admin powers.** The owner can change the conversion rate and level economics — centralization/admin-key risk. Production should use a multisig + timelock, and the rate should not be changeable in a way that retroactively harms existing balances.
+- ⚠️ **Solvency dependence.** Net winnings are only redeemable while the CELO pool is funded ("withdraw if allowed").
 - ⚠️ **Pseudo-random outcomes.** See [Randomness disclaimer](#randomness-disclaimer).
 
 **Operational security (per Proof of Ship guidance):**
@@ -417,7 +522,7 @@ For the MVP, the winning card is derived from on-chain pseudo-randomness:
 
 ```solidity
 // WARNING: NOT secure for production. Replace before mainnet deployment with
-// real funds — e.g. a VRF provider or a commit-reveal scheme.
+// real value at stake — e.g. a VRF provider or a commit-reveal scheme.
 winningCard = uint8(
     uint256(keccak256(abi.encodePacked(
         block.timestamp, block.prevrandao, msg.sender, nextRoundId
@@ -425,16 +530,16 @@ winningCard = uint8(
 );
 ```
 
-This is **predictable / manipulable by miners/validators and sophisticated callers** and is suitable **only for a testnet demo**. Any deployment that pays out value of consequence **must** replace it with **verifiable randomness (VRF)** or a **commit-reveal** protocol. This is tracked in the [Roadmap](#roadmap).
+This is **predictable / manipulable by validators and sophisticated callers** and is suitable **only for a testnet demo**. Any deployment that redeems credits for real value **must** replace it with **verifiable randomness (VRF)** or a **commit-reveal** protocol. Tracked in the [Roadmap](#roadmap).
 
 ---
 
 ## Compliance disclaimer
 
-**Voxel is an experimental, testnet game built for the Celo Proof of Ship builder program. It is not a financial product, not a real-money gambling service, and not investment or yield-bearing software.**
+**Voxel is an experimental, testnet game built for the Celo Proof of Ship builder program. It is not a financial product, not a real-money gambling service, and not investment or yield-bearing software. VOXEL credits are internal game points, not a token, security, or currency.**
 
-- The deposit / play-fee / prize mechanics are **in-game mechanics** intended for **testnet tokens** during the program.
-- A game that takes a fee and pays a variable prize based on chance may be classified as **gambling, betting, or a lottery** in many jurisdictions. **Deploying Voxel with real funds, on mainnet, with prize payouts, may require legal and regulatory review**, and potentially licensing, KYC/AML, geofencing, age verification, and responsible-gaming controls — depending on jurisdiction.
+- The deposit / play-fee / reward mechanics are **in-game mechanics** intended for **testnet** during the program.
+- A game that takes a fee and pays a variable reward based on chance — where credits are redeemable for CELO — may be classified as **gambling, betting, or a lottery** in many jurisdictions. **Deploying Voxel with real funds, on mainnet, with redeemable winnings, may require legal and regulatory review**, and potentially licensing, KYC/AML, geofencing, age verification, and responsible-gaming controls — depending on jurisdiction.
 - Voxel does **not** provide such controls in its MVP form.
 - Nothing here is legal advice. Operators are solely responsible for compliance in their jurisdiction before any real-money or mainnet-with-value deployment.
 
@@ -444,11 +549,11 @@ This is **predictable / manipulable by miners/validators and sophisticated calle
 
 ## Installation
 
-**Prerequisites:** Node.js 20+, npm, [Foundry](https://book.getfoundry.sh/getting-started/installation) (`forge`), git, and a dedicated (non-personal) wallet funded with Celo Sepolia test tokens.
+**Prerequisites:** Node.js 20+, npm, [Foundry](https://book.getfoundry.sh/getting-started/installation) (`forge`), git, and a dedicated (non-personal) wallet funded with Celo Sepolia test CELO.
 
 ```bash
 # Clone
-git clone <your-repo-url> Voxel
+git clone https://github.com/EzraNahumury/Voxel.git
 cd Voxel
 
 # Frontend
@@ -458,7 +563,7 @@ cd ..
 
 # Contracts (Foundry)
 cd sc-voxel
-forge install OpenZeppelin/openzeppelin-contracts   # add OZ (forge-std already vendored)
+forge install OpenZeppelin/openzeppelin-contracts   # forge-std already vendored
 forge build
 cd ..
 ```
@@ -482,10 +587,8 @@ NEXT_PUBLIC_CHAIN_ID=11142220            # Celo Sepolia (dev). Celo Mainnet = 42
 # Contract
 NEXT_PUBLIC_VOXEL_CONTRACT_ADDRESS=
 
-# Token addresses (do NOT hardcode in source)
-NEXT_PUBLIC_USDM_ADDRESS=
-NEXT_PUBLIC_USDC_ADDRESS=
-NEXT_PUBLIC_USDT_ADDRESS=
+# Economy (display only; source of truth is on-chain)
+NEXT_PUBLIC_VOXEL_PER_CELO=1000
 NEXT_PUBLIC_CELO_NATIVE=true
 ```
 
@@ -503,7 +606,7 @@ CELO_RPC_URL=https://forno.celo.org
 CELOSCAN_API_KEY=
 ```
 
-> ⚠️ Add both env files to `.gitignore`. Never commit a private key.
+> ⚠️ Add both env files to `.gitignore`. Never commit a private key. Confirm the exact Celo Sepolia RPC host against the current Celo docs before deploying.
 
 ---
 
@@ -535,9 +638,9 @@ forge script script/VoxelGame.s.sol:VoxelGameScript \
 
 **Post-deploy (owner):**
 
-1. `setToken(...)` for each supported token (USDm, USDC, USDT, CELO).
-2. `setLevel(...)` for Beginner / Medium / Hard.
-3. `fundPrizePoolERC20` / `fundPrizePoolCELO` to seed prize liquidity.
+1. `setConversionRate(1000)` (or your chosen rate).
+2. `setLevel(...)` for Beginner / Medium / Hard (fees and rewards in VOXEL).
+3. `fundPrizePoolCELO{value: ...}()` to seed CELO so winnings can be redeemed.
 4. Copy the deployed address into `frontend-voxel/.env.local`.
 
 ---
@@ -562,26 +665,28 @@ Use this as the QA pass before submission.
 
 **Contract (Foundry):**
 
-- [ ] Deposit ERC-20 (USDm/USDC/USDT) increases deposit balance by the exact amount.
-- [ ] Deposit CELO via payable increases native deposit balance.
-- [ ] Withdraw fails when amount > deposit balance.
-- [ ] `playRound` reverts when deposit balance < play fee.
-- [ ] On win, prize is credited and stats update (`totalWins`, `totalPrizeWon`).
-- [ ] On loss, only the fee is deducted and stats update (`totalLosses`).
-- [ ] Prize payout reverts when prize-pool liquidity is insufficient.
-- [ ] Only owner can call `setToken` / `setLevel`.
-- [ ] Reentrancy attempt on withdraw/play is blocked.
-- [ ] Token decimals handled correctly for 6- and 18-decimal tokens.
-- [ ] Events emitted with correct args for `Deposited`/`Withdrawn`/`RoundPlayed`.
+- [ ] `depositCELO` credits VOXEL = `msg.value * voxelPerCelo / 1e18` (exact).
+- [ ] `playRound` reverts when VOXEL balance < level fee.
+- [ ] On win, the reward is credited and stats update (`totalWins`, `totalRewardWon`).
+- [ ] On loss, only the fee is deducted and stats update (`totalLosses`, `totalFeesPaid`).
+- [ ] `withdraw` burns VOXEL and sends the correct CELO amount.
+- [ ] `withdraw` reverts when amount > VOXEL balance.
+- [ ] `withdraw` / payout reverts when contract CELO liquidity is insufficient.
+- [ ] Only owner can call `setLevel` / `setConversionRate`.
+- [ ] Reentrancy attempt on `withdraw` is blocked.
+- [ ] CELO is sent via a checked low-level `call` (success required).
+- [ ] Events emitted with correct args for `Deposited` / `Withdrawn` / `RoundPlayed`.
 
 **Frontend:**
 
-- [ ] Wallet connects inside MiniPay and reads balances.
-- [ ] ERC-20 deposit requires `approve` then `deposit`; CELO is single-step.
-- [ ] Lobby shows card count, fee, prize, and current deposit balance.
+- [ ] Inside MiniPay: `window.ethereum.isMiniPay` is detected, the wallet auto-connects, and the Connect Wallet button is hidden.
+- [ ] Wallet connects inside MiniPay and reads CELO + VOXEL balances.
+- [ ] CELO deposit shows the resulting VOXEL credit (rate applied).
+- [ ] Lobby shows card count, VOXEL fee, VOXEL reward, and current credit balance.
 - [ ] Game screen renders the correct card count per level (3 / 5 / 7).
-- [ ] Result modal matches the onchain outcome.
-- [ ] Withdraw returns funds and updates UI.
+- [ ] Result modal matches the onchain outcome and updates the VOXEL balance.
+- [ ] Withdraw redeems VOXEL → CELO and updates UI.
+- [ ] UI makes clear that gas (CELO) is separate from the VOXEL game fee.
 - [ ] Mobile layout is usable at common phone widths.
 
 ---
@@ -592,7 +697,7 @@ Use this as the QA pass before submission.
 Voxel/
 ├── README.md                  # this file
 ├── Docs_Hackaton.md           # Proof of Ship program brief (source of truth for criteria)
-├── garisbesarproject.md       # full Voxel product & contract design doc
+├── garisbesarproject.md       # original Voxel product & contract design doc
 │
 ├── frontend-voxel/            # MiniApp — Next.js 16 + React 19 + Tailwind v4
 │   ├── app/                   # App Router pages
@@ -610,7 +715,7 @@ Voxel/
     └── lib/forge-std/
 ```
 
-> The single-folder Hardhat layout in `garisbesarproject.md` was the early plan; the **actual** repository uses the two-package (Foundry + Next.js) layout shown above.
+> The single-folder, multi-token Hardhat layout in `garisbesarproject.md` was the early plan; the **current** design is a CELO→VOXEL credit game in a two-package (Foundry + Next.js) repository.
 
 ---
 
@@ -618,13 +723,14 @@ Voxel/
 
 **MVP (Proof of Ship submission)**
 
-- 🚧 Implement `VoxelGame.sol` (deposits, withdraw, `playRound`, stats, admin, events).
+- 🚧 Implement `VoxelGame.sol` (CELO deposit → VOXEL credits, `playRound`, `withdraw`, stats, admin, events).
 - 🚧 Foundry tests covering the [testing checklist](#testing-checklist).
-- 🚧 MiniPay wallet connection + deposit/withdraw/lobby/game/result UI.
-- 🗺️ Deploy + verify on **Celo Mainnet**; seed prize pool; generate real onchain activity.
+- 🚧 MiniPay wallet connection + deposit/credit/lobby/game/result UI.
+- 🗺️ Deploy + verify on **Celo Mainnet**; seed the CELO pool; generate real onchain activity.
 
 **Post-MVP / production-readiness**
 
+- 🗺️ **Multi-token deposits** — accept USDm/USDC/USDT and convert to VOXEL credits.
 - 🗺️ Replace pseudo-randomness with **VRF or commit-reveal**.
 - 🗺️ Leaderboard from contract events (indexer/subgraph).
 - 🗺️ Owner controls behind a **multisig + timelock**.
@@ -654,7 +760,7 @@ Voxel/
 Tracking the **Proof of Ship — Celo Builder Program** eligibility requirements:
 
 - [ ] Smart contract **deployed on Celo Mainnet** and **verified** on Celoscan.
-- [ ] Project is a **MiniApp built with the MiniPay hook**.
+- [ ] Project is a **MiniApp built with the MiniPay hook** — code detects `window.ethereum.isMiniPay` and hides the Connect Wallet button when opened from MiniPay.
 - [ ] Repository is **open source** with an active public GitHub repo.
 - [ ] **Onchain activity** present (real deposit / play / withdraw transactions).
 - [ ] Every builder has **Proof of Humanity** (Self human checkmark / Talent App credential).
@@ -667,4 +773,4 @@ Tracking the **Proof of Ship — Celo Builder Program** eligibility requirements
 
 ---
 
-<sub>Voxel is an experimental testnet game built for the Celo Proof of Ship builder program. Not audited. Not a real-money gambling product. See the [Compliance disclaimer](#compliance-disclaimer) and [Randomness disclaimer](#randomness-disclaimer).</sub>
+<sub>Voxel is an experimental testnet game built for the Celo Proof of Ship builder program. VOXEL credits are internal game points, not a token. Not audited. Not a real-money gambling product. See the [Compliance disclaimer](#compliance-disclaimer) and [Randomness disclaimer](#randomness-disclaimer).</sub>
