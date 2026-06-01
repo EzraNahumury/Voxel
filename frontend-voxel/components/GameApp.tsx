@@ -5,7 +5,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAccount, useConfig, useSwitchChain, useWriteContract } from "wagmi";
-import { simulateContract, writeContract, waitForTransactionReceipt } from "@wagmi/core";
+import { waitForTransactionReceipt } from "@wagmi/core";
 import { decodeEventLog, parseEther, type Log } from "viem";
 import {
   VOXEL_ABI,
@@ -195,6 +195,7 @@ function Stage({ v }: { v: ReturnType<typeof useVoxel> }) {
   const [error, setError] = useState<string | null>(null);
 
   const config = useConfig();
+  const { writeContractAsync } = useWriteContract();
 
   const level = levelId ? getLevelMeta(levelId) : null;
   const credits = v.credits ?? 0n;
@@ -244,15 +245,13 @@ function Stage({ v }: { v: ReturnType<typeof useVoxel> }) {
     setPhase("submitting");
     setError(null);
     try {
-      const { request } = await simulateContract(config, {
+      const hash = await writeContractAsync({
         address: VOXEL_ADDRESS,
         abi: VOXEL_ABI,
         functionName: "playRound",
-        args: [levelId, index],
-        account: v.address,
         chainId: CELO_CHAIN_ID,
+        args: [levelId, index],
       });
-      const hash = await writeContract(config, request);
       const receipt = await waitForTransactionReceipt(config, { hash });
       const ev = parseRound(receipt.logs);
       if (ev) setOutcome({ won: ev.won, winningCard: Number(ev.winningCard), reward: ev.reward, fee: ev.fee });
