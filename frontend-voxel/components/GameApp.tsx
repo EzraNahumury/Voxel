@@ -501,7 +501,7 @@ function PlayCard({
         >
           {isWinner ? (
             <div className="relative h-full w-full bg-gradient-to-b from-bone to-[#cfc6b4]">
-              <TarotCanvas className="h-full w-full" target={2.4} />
+              <TarotCanvas className="h-full w-full" target={3.4} />
               <span className="absolute bottom-2 left-1/2 -translate-x-1/2 font-mono text-[0.55rem] uppercase tracking-[0.25em] text-void/70">
                 Three of Swords
               </span>

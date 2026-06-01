@@ -21,12 +21,10 @@ function Card({ target = 3.2 }: { target?: number }) {
     return { scale: target / maxDim, offset: center };
   }, [cloned, target]);
 
-  // Static, gently angled pose for depth — no rotation.
+  // Front-facing, centered — fills the card face flat.
   return (
-    <group rotation={[0.07, -0.36, 0]}>
-      <group scale={scale} position={[-offset.x * scale, -offset.y * scale, -offset.z * scale]}>
-        <primitive object={cloned} />
-      </group>
+    <group scale={scale} position={[-offset.x * scale, -offset.y * scale, -offset.z * scale]}>
+      <primitive object={cloned} />
     </group>
   );
 }
@@ -45,10 +43,9 @@ export default function TarotCanvas({
       camera={{ position: [0, 0, 6], fov: 32 }}
       gl={{ antialias: true, alpha: true }}
     >
-      <ambientLight intensity={0.75} />
-      <directionalLight position={[3, 6, 5]} intensity={2.4} />
-      <pointLight position={[-5, -2, 4]} color="#35d07f" intensity={9} distance={16} />
-      <pointLight position={[5, 4, -3]} color="#fcff52" intensity={4} distance={16} />
+      <ambientLight intensity={1.15} />
+      <directionalLight position={[0, 1, 6]} intensity={1.8} />
+      <directionalLight position={[0, 0, 4]} intensity={0.6} />
       <Suspense fallback={null}>
         <Card target={target} />
       </Suspense>
