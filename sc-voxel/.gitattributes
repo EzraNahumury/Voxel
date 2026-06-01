@@ -1,0 +1,6 @@
+# Normalize line endings to LF in the repo, checkout native on each OS.
+* text=auto eol=lf
+
+# Treat lockfiles/artifacts as generated.
+foundry.lock linguist-generated=true
+broadcast/** linguist-generated=true
