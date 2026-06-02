@@ -1,16 +1,20 @@
 "use client";
 
 import { useRef } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { LEVELS, VOXEL_ADDRESS } from "@/lib/voxel";
-import Particles from "@/components/reactbits/Particles";
 import CardFan from "@/components/CardFan";
-import Owls from "@/components/Owls";
 import { Reveal, SplitWords } from "@/components/Reveal";
-import ForestAtmosphere from "@/components/ForestAtmosphere";
 import SpotlightCard from "@/components/reactbits/SpotlightCard";
+
+// Purely decorative, client-only atmosphere — code-split and skipped on the
+// server so the hero paints first and initial JS stays small.
+const Particles = dynamic(() => import("@/components/reactbits/Particles"), { ssr: false });
+const Owls = dynamic(() => import("@/components/Owls"), { ssr: false });
+const ForestAtmosphere = dynamic(() => import("@/components/ForestAtmosphere"), { ssr: false });
 
 const ease = [0.16, 1, 0.3, 1] as const;
 const rise = {
@@ -85,7 +89,7 @@ export default function Landing() {
           <Particles
             className="absolute inset-0"
             particleColors={["#e23d4b", "#fcff52", "#ece6d8"]}
-            particleCount={70}
+            particleCount={45}
             particleSpread={12}
             speed={0.05}
             particleBaseSize={48}

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 // Owl silhouettes gliding across the eclipse sky — flapping wings, glowing eyes.
 // Sits behind the UI; reads against the red glow, fades into the dark.
@@ -9,10 +9,8 @@ type B = { top: string; scale: number; dur: number; delay: number; dir: 1 | -1 }
 
 const OWLS: B[] = [
   { top: "13%", scale: 1.05, dur: 28, delay: 0, dir: 1 },
-  { top: "8%", scale: 0.75, dur: 34, delay: 8, dir: 1 },
-  { top: "21%", scale: 0.9, dur: 30, delay: 15, dir: -1 },
-  { top: "17%", scale: 0.6, dur: 38, delay: 4, dir: 1 },
-  { top: "27%", scale: 0.7, dur: 35, delay: 21, dir: -1 },
+  { top: "21%", scale: 0.9, dur: 30, delay: 12, dir: -1 },
+  { top: "27%", scale: 0.7, dur: 35, delay: 6, dir: 1 },
 ];
 
 function Owl({ scale }: { scale: number }) {
@@ -68,17 +66,23 @@ function Owl({ scale }: { scale: number }) {
 }
 
 export default function Owls() {
+  // Decorative only — skip entirely when the user prefers reduced motion.
+  const reduce = useReducedMotion();
+  if (reduce) return null;
+
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 h-screen overflow-hidden">
       {OWLS.map((b, i) => (
         <motion.div
           key={i}
-          className="absolute"
+          className="absolute left-0 top-0 will-change-transform"
           style={{ top: b.top }}
-          initial={{ left: b.dir === 1 ? "-12%" : "112%" }}
-          animate={{ left: b.dir === 1 ? "112%" : "-12%", y: [0, -16, 8, 0] }}
+          // Animate transform (x) instead of `left` so motion stays on the
+          // compositor and never triggers layout/paint each frame.
+          initial={{ x: b.dir === 1 ? "-15vw" : "115vw" }}
+          animate={{ x: b.dir === 1 ? "115vw" : "-15vw", y: [0, -16, 8, 0] }}
           transition={{
-            left: { duration: b.dur, repeat: Infinity, ease: "linear", delay: b.delay },
+            x: { duration: b.dur, repeat: Infinity, ease: "linear", delay: b.delay },
             y: { duration: 6.5, repeat: Infinity, ease: "easeInOut", delay: b.delay },
           }}
         >

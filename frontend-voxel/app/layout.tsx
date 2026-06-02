@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Bodoni_Moda, Fraunces, Manrope, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { Providers } from "./providers";
 
 const display = Fraunces({
   subsets: ["latin"],
@@ -49,7 +48,7 @@ export default function RootLayout({
       className={`${display.variable} ${body.variable} ${mono.variable} ${fancy.variable}`}
     >
       <body className="min-h-screen bg-void font-body text-ink antialiased">
-        <Providers>{children}</Providers>
+        {children}
       </body>
     </html>
   );
