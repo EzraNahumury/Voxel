@@ -1,0 +1,20 @@
+{
+  "name": "voxel-bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Automated player fleet for VoxelGame on Celo Mainnet (100 wallets, 2x/day beginner rounds).",
+  "scripts": {
+    "generate": "node generate-wallets.js",
+    "distribute": "node distribute.js",
+    "deposit": "node deposit.js",
+    "spam": "node spam-deposit.js",
+    "play": "node play.js",
+    "status": "node status.js",
+    "calc": "node calc.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "viem": "^2.51.3"
+  }
+}

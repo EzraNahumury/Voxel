@@ -1,0 +1,12 @@
+# SECRETS — never commit. Real private keys with mainnet CELO.
+# `wallets*.json` also catches wallets.public.json and any backup copies.
+wallets*.json
+.env
+.env.local
+
+# logs (may contain addresses)
+*.log
+play-activity.log
+
+# deps
+node_modules/

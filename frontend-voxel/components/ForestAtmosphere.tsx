@@ -21,7 +21,7 @@ const ORBS = [
   { l: "74%", t: "58%", s: 400, c: "rgba(130,80,210,0.15)", dur: 13, dl: 2 },
 ];
 
-const FIREFLIES = Array.from({ length: 14 }, (_, i) => ({
+const FIREFLIES = Array.from({ length: 8 }, (_, i) => ({
   l: `${((i * 41) % 96) + 2}%`,
   t: `${((i * 57) % 66) + 22}%`,
   s: 2 + (i % 3),
@@ -29,7 +29,7 @@ const FIREFLIES = Array.from({ length: 14 }, (_, i) => ({
   dl: (i % 8) * 0.8,
 }));
 
-const SPORES = Array.from({ length: 18 }, (_, i) => ({
+const SPORES = Array.from({ length: 10 }, (_, i) => ({
   l: `${((i * 53) % 98) + 1}%`,
   t: `${((i * 37) % 76) + 16}%`,
   dur: 15 + (i % 7),

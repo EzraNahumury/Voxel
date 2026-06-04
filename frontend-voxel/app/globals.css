@@ -205,6 +205,9 @@
 @keyframes mistSweep { 0%, 100% { transform: translateX(-6%); } 50% { transform: translateX(6%); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-kenburns, .animate-kenburns-2, .animate-drift, .card-sheen { animation: none; }
+  html { scroll-behavior: auto; }
+  .animate-kenburns, .animate-kenburns-2, .animate-drift, .card-sheen,
+  .shimmer, .animate-float-card, .animate-pulse-ring { animation: none !important; }
   .forest-fx * { animation: none !important; }
+  body::before { animation: none; }
 }

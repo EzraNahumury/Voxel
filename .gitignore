@@ -1,0 +1,14 @@
+# === SECRET GUARD (repo is public) — keys must NEVER be committed ===
+# Belt-and-suspenders: blocks key files from anywhere, even `git add -A` at root.
+**/wallets*.json
+**/.env
+**/.env.local
+bot/wallets*.json
+bot/.env
+
+# logs
+**/*.log
+
+# deps
+**/node_modules/
+node_modules/

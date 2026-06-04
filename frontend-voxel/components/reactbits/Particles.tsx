@@ -154,7 +154,9 @@ const Particles: React.FC<ParticlesProps> = ({
       container.addEventListener("mousemove", handleMouseMove);
     }
 
-    const count = particleCount;
+    // Halve the particle budget on small screens — same look, far less fill-rate.
+    const isSmall = typeof window !== "undefined" && window.innerWidth < 640;
+    const count = isSmall ? Math.max(12, Math.round(particleCount * 0.5)) : particleCount;
     const positions = new Float32Array(count * 3);
     const randoms = new Float32Array(count * 4);
     const colors = new Float32Array(count * 3);
@@ -197,11 +199,18 @@ const Particles: React.FC<ParticlesProps> = ({
 
     const particles = new Mesh(gl, { mode: gl.POINTS, geometry, program });
 
-    let animationFrameId: number;
+    let animationFrameId = 0;
     let lastTime = performance.now();
     let elapsed = 0;
+    let running = false;
+    let inView = true;
+
+    const reduceMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
     const update = (t: number) => {
+      if (!running) return;
       animationFrameId = requestAnimationFrame(update);
       const delta = t - lastTime;
       lastTime = t;
@@ -226,14 +235,52 @@ const Particles: React.FC<ParticlesProps> = ({
       renderer.render({ scene: particles, camera });
     };
 
-    animationFrameId = requestAnimationFrame(update);
+    const start = () => {
+      if (running) return;
+      running = true;
+      lastTime = performance.now();
+      animationFrameId = requestAnimationFrame(update);
+    };
+    const stop = () => {
+      running = false;
+      cancelAnimationFrame(animationFrameId);
+    };
+    // Only run while visible on screen AND the tab is focused.
+    const sync = () => {
+      if (inView && !document.hidden) start();
+      else stop();
+    };
+
+    let teardown: (() => void) | undefined;
+
+    // Reduced motion: paint a single static frame, never loop.
+    if (reduceMotion) {
+      renderer.render({ scene: particles, camera });
+    } else {
+      const io = new IntersectionObserver(
+        ([entry]) => {
+          inView = entry.isIntersecting;
+          sync();
+        },
+        { threshold: 0 },
+      );
+      io.observe(container);
+      document.addEventListener("visibilitychange", sync);
+      sync();
+
+      teardown = () => {
+        io.disconnect();
+        document.removeEventListener("visibilitychange", sync);
+      };
+    }
 
     return () => {
       window.removeEventListener("resize", resize);
       if (moveParticlesOnHover) {
         container.removeEventListener("mousemove", handleMouseMove);
       }
-      cancelAnimationFrame(animationFrameId);
+      stop();
+      teardown?.();
       if (container.contains(gl.canvas)) {
         container.removeChild(gl.canvas);
       }

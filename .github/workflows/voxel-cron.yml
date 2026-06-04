@@ -1,0 +1,45 @@
+name: voxel-spam-cron
+
+# Plays beginner rounds across the wallet fleet twice a day.
+# GitHub cron is UTC and best-effort (can be delayed minutes under load).
+on:
+  schedule:                 # 4x/day, every 6h (UTC; best-effort, may delay under load)
+    - cron: "0 0 * * *"   # 07:00 WIB
+    - cron: "0 6 * * *"   # 13:00 WIB
+    - cron: "0 12 * * *"  # 19:00 WIB
+    - cron: "0 18 * * *"  # 01:00 WIB
+  workflow_dispatch: {}     # manual "Run workflow" button
+
+# Never run two play rounds at once (avoids nonce clashes on the same wallets).
+concurrency:
+  group: voxel-cron
+  cancel-in-progress: false
+
+jobs:
+  play:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install deps
+        working-directory: bot
+        run: npm ci --omit=dev
+
+      # Deposit-spam = cheapest tx volume (~6.5x less gas than playRound).
+      # To run real game-plays instead, swap `node spam-deposit.js` -> `node play.js`.
+      - name: Spam tx
+        working-directory: bot
+        env:
+          # Repo secret VOXEL_WALLETS = full JSON contents of bot/wallets.json
+          VOXEL_WALLETS: ${{ secrets.VOXEL_WALLETS }}
+          # Optional override; falls back to https://forno.celo.org
+          RPC_URL: ${{ secrets.RPC_URL }}
+          DEPOSITS_PER_RUN: "1"
+          DEPOSIT_MIN: "0.001"
+          CONCURRENCY: "6"
+        run: node spam-deposit.js
