@@ -315,7 +315,7 @@ function Stage({ v }: { v: ReturnType<typeof useVoxel> }) {
                 disabled={!canAfford}
                 className="animate-pulse-ring rounded-full bg-green px-10 py-3.5 font-mono text-sm uppercase tracking-[0.2em] text-void transition hover:bg-green-bright disabled:opacity-40"
               >
-                Pilih Kartu
+                Pick Card
               </button>
               <p className="font-mono text-[0.65rem] uppercase tracking-[0.3em] text-faint">
                 Cards shuffling — tap to stop

@@ -60,7 +60,7 @@ For **play-spam**, also run `npm run deposit` once (seeds 0.2 CELO → 200 credi
 - Repo → **Settings → Secrets and variables → Actions → New repository secret**:
   - `VOXEL_WALLETS` = the **entire contents** of `bot/wallets.json`.
   - _(optional)_ `RPC_URL` = a dedicated Celo RPC if you don't want to rely on forno.
-- The workflow auto-runs at 00:00 / 06:00 / 12:00 / 18:00 UTC (07:00 / 13:00 / 19:00 / 01:00 WIB). Trigger manually first via **Actions → voxel-spam-cron → Run workflow**.
+- The workflow auto-runs at 00:00 / 06:00 / 12:00 / 18:00 UTC (07:00 / 13:00 / 19:00 / 01:00 UTC+7). Trigger manually first via **Actions → voxel-spam-cron → Run workflow**.
 
 ## Operating
 
