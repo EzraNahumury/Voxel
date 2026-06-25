@@ -4,10 +4,10 @@ name: voxel-spam-cron
 # GitHub cron is UTC and best-effort (can be delayed minutes under load).
 on:
   schedule:                 # 4x/day, every 6h (UTC; best-effort, may delay under load)
-    - cron: "0 0 * * *"   # 07:00 WIB
-    - cron: "0 6 * * *"   # 13:00 WIB
-    - cron: "0 12 * * *"  # 19:00 WIB
-    - cron: "0 18 * * *"  # 01:00 WIB
+    - cron: "0 0 * * *"   # 07:00 UTC+7
+    - cron: "0 6 * * *"   # 13:00 UTC+7
+    - cron: "0 12 * * *"  # 19:00 UTC+7
+    - cron: "0 18 * * *"  # 01:00 UTC+7
   workflow_dispatch: {}     # manual "Run workflow" button
 
 # Never run two play rounds at once (avoids nonce clashes on the same wallets).
